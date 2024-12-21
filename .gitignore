@@ -1,0 +1,11 @@
+# Environment
+.venv
+venv/
+venv.bak/
+
+# Token
+config.py
+
+.idea/
+
+__pycache__/
