@@ -109,29 +109,38 @@ def response_text(sem1_exam, sem1_test, sem2_exam, sem2_test, course):
 def form_processing(direction, plan, course):
     options = Options()
     options.add_argument('--headless=new')
-    driver = webdriver.Chrome(options=options)
-    driver.get("https://shelly.kpfu.ru/e-ksu/study_plan_for_web?P_FACULTY=9&p_portal=1")
+    try:
+        driver = webdriver.Chrome(options=options)
+    except Exception as e:
+        print('Ошибка webdriver')
+        print(e)
+    else:
+        try:
+            driver.get("https://shelly.kpfu.ru/e-ksu/study_plan_for_web?P_FACULTY=9&p_portal=1")
+        except Exception as e:
+            print('Сайт не доступен')
+            print(e)
+        else:
+            select_element = driver.find_element(By.XPATH, "//*[@id='dim_content2']/div[2]/table/tbody/tr/td[2]/select")
+            select = Select(select_element)
+            select.select_by_value(direction)
 
-    select_element = driver.find_element(By.XPATH, "//*[@id='dim_content2']/div[2]/table/tbody/tr/td[2]/select")
-    select = Select(select_element)
-    select.select_by_value(direction)
+            select_element = driver.find_element(By.XPATH, "//*[@id='dim_content2']/div[2]/table/tbody/tr[2]/td[2]/select")
+            select = Select(select_element)
+            select.select_by_value(plan)
 
-    select_element = driver.find_element(By.XPATH, "//*[@id='dim_content2']/div[2]/table/tbody/tr[2]/td[2]/select")
-    select = Select(select_element)
-    select.select_by_value(plan)
+            select_element = driver.find_element(By.XPATH,
+                                                 "// *[ @ id = 'dim_content2'] / div[2] / table / tbody / tr[3] / td[2] / select")
+            select = Select(select_element)
+            select.select_by_value(course)
 
-    select_element = driver.find_element(By.XPATH,
-                                         "// *[ @ id = 'dim_content2'] / div[2] / table / tbody / tr[3] / td[2] / select")
-    select = Select(select_element)
-    select.select_by_value(course)
+            driver.find_element(By.XPATH, "//*[@id='submit_ask']/input").click()
 
-    driver.find_element(By.XPATH, "//*[@id='submit_ask']/input").click()
+            table = driver.find_element(By.CLASS_NAME, 'T_TABLE')
+            html_table = table.get_attribute('innerHTML')
+            driver.quit()
 
-    table = driver.find_element(By.CLASS_NAME, 'T_TABLE')
-    html_table = table.get_attribute('innerHTML')
-    driver.quit()
-
-    return html_table
+            return html_table
 
 
 def response(direction, plan, course):
